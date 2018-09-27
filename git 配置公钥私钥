@@ -1,31 +1,31 @@
 ###################################################################
 
 
----------------------------------------------------------------
+--------------------------------------------------------------
 
 一、刚接触Git有很多困惑：
 
 
-1.为什么要公钥和私钥呢，到底有啥用呢（详细点）
+	1.为什么要公钥和私钥呢，到底有啥用呢（详细点）
 
-2.为什么要把我的公钥加到Git项目之中保存起来
+	2.为什么要把我的公钥加到Git项目之中保存起来
 
-	GIT服务器上存储的是公钥，你本地存储的是私钥，
-	当你push本地代码库到远程代码库，服务器会要求你出示私钥，
-	并且用你出示的私钥和它的公钥配对来完成认证。
-	由于使用的是不对称加密，所以公钥可以公开，只要保管好私钥就可以。
-	
-3.比如，某路人甲 想给我的项目提供一些代码，他没有我的公钥可以push给我吗？
+		GIT服务器上存储的是公钥，你本地存储的是私钥，
+		当你push本地代码库到远程代码库，服务器会要求你出示私钥，
+		并且用你出示的私钥和它的公钥配对来完成认证。
+		由于使用的是不对称加密，所以公钥可以公开，只要保管好私钥就可以。
+		
+	3.比如，某路人甲 想给我的项目提供一些代码，他没有我的公钥可以push给我吗？
 
-	路人甲只要没有私钥，所以无法push。
-	这样才能保证开源项目的完整性，否则阿猫阿狗都去push代码，那项目不就乱套了？
-	如果路人甲想对你的项目做出贡献，那么以GITHUB为例，
-	他会发送一个pull request给你，然后由你来审核他作出的改变，
-	如果审核通过，那么你就可以将他的pull request合并到你工程的某一分支中。
-	这里只以GITHUB为例，私有的GIT服务器可能没有类似功能，比如GITLAB就没有pull request。
+		路人甲只要没有私钥，所以无法push。
+		这样才能保证开源项目的完整性，否则阿猫阿狗都去push代码，那项目不就乱套了？
+		如果路人甲想对你的项目做出贡献，那么以GITHUB为例，
+		他会发送一个pull request给你，然后由你来审核他作出的改变，
+		如果审核通过，那么你就可以将他的pull request合并到你工程的某一分支中。
+		这里只以GITHUB为例，私有的GIT服务器可能没有类似功能，比如GITLAB就没有pull request。
+		
 	
-	
----------------------------------------------------------------
+----------------------------------------------------------------
 
 二、配置公钥和私钥的教程：
 （这里以我公司的账号为例子加以说明：
@@ -36,89 +36,89 @@
 ）
 
 
-1.检查是否已有全局账户设置：
-	
-	git config --global user.name
- 
-	git config --global user.email
- 
- //如果都没有返回值，就说明没有已配置的 git 账户，否则请删除账户信息，命令如下：
- 
-	git config --global --unset user.name "yourname"
- 
-	git config --global --unset user.email "youremail"
-
- 
-2.生成公钥和秘钥，一般是以 从（gitlab）公司注册的邮箱账号(yangwankui@51ucar.cn)来注册的：
-	进入系统目录下：
-		cd ~/.ssh 
-		//如果没有(文件夹).ssh, 可以新建一个 .ssh 文件夹： mkdir .ssh
-
-	ssh-keygen -C  rsa 'yangwankui@51ucar' 	// 参数C要大写
-	
-然后提示输入名称：
-	id_rsa	//默认都是这个名称
-	
-后面连续打三个enter，不设置密码即可
-	
-
-3.将公钥添加到gitlab服务器中：
-
-	拷贝公钥内容： 
-		pbcopy < id_rsa.pub
-
-	进入 “个人资料设置/设置/SSH密钥”，点击增加密钥，
-	会出现两个对话框，分别在‘密钥’和‘标题’栏中输入：
-		ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC98Eu4rfLWZ5G+NPcJf6TqEJ+EQ32PCiqNVYQyCuxDzmJqvYFcCq6cvH0IU/pTG5D3vPRBVd/HaBc95z1+Q6ulXZG15pbGzs+XFZe5fMCszyyxi42QbADfXUhz4m/NJ0+kKbtJ2EtaREDrDfDWovaklTTAx95WSFYwWTYIVKpfENojF5vik/d1AcS6IAK0xi6+zeHy3JSKLl2v2k3Y0BcDFLVRzLpG/ckx1qFGWzoOZeps+hDnXdBSauh9+t/+vXdiYqS4fnIJ1pz4aZ6ad/vpkm72/8P8PlDtlyTgzZX3Inq+wclGQURdPSmDwBKStEkTIxjgB+FuQRHBhPENsEF7 git@gitlab.51ucar.cn:it/agent.git
-		和
-		yangwankui@51ucar.cn
-	保存即可！
-	
-	
-4.本地环境添加私钥：
-	
-		ssh-add ~/.ssh/id_rsa
+	1.检查是否已有全局账户设置：
 		
+		git config --global user.name
+	 
+		git config --global user.email
+	 
+	 //如果都没有返回值，就说明没有已配置的 git 账户，否则请删除账户信息，命令如下：
+	 
+		git config --global --unset user.name "yourname"
+	 
+		git config --global --unset user.email "youremail"
+
+	 
+	2.生成公钥和秘钥，一般是以 从（gitlab）公司注册的邮箱账号(yangwankui@51ucar.cn)来注册的：
+		进入系统目录下：
+			cd ~/.ssh 
+			//如果没有(文件夹).ssh, 可以新建一个 .ssh 文件夹： mkdir .ssh
+
+		ssh-keygen -C  rsa 'yangwankui@51ucar' 	// 参数C要大写
 		
-5.远程测试：
-	
-	ssh -T git@gitlab.51ucar.cn
-	
-	如果显示以下内容，说明是配置成功了:
-		Hi xxx! You've successfully authenticated, but GitHub does not provide shell access
-		Connection to github.com closed.
+	然后提示输入名称：
+		id_rsa	//默认都是这个名称
+		
+	后面连续打三个enter，不设置密码即可
 		
 
-6.有必要的话，再次设置一下用户名和邮箱：
+	3.将公钥添加到gitlab服务器中：
 
-		git config --global user.name "yangwankui"
-        git config --global user.email "yangwankui@51ucar.cn"
-		
-		
-7.后面就可以clone一套代码下面
-		
-		git clone git@github.com:用户名/库.git
-		
-	{{{{{
-		当然，对于空项目也有另外一种方法来建立：
+		拷贝公钥内容： 
+			pbcopy < id_rsa.pub
 
-			//创建本地新项目工作树
-			 mkdir new-project 
-			 cd new-project 
-			 git init 
-			 touch README 
-			 git add README     
-			 //（上传README 文件） 
-			 git commit -m 'first commit'	
-			 //定义远程服务器别名origin
-			  git remote add origin git@github.com:xxx/new-project.git     
-			 （origin 在这里就是git@github.com:xxx/new-project.git 的一个别名， 一个 url 链接）
-			 //本地和远程合并，本地默认分支为master
-			 git push origin master  （执行这一步可能会有报错）
-
-	}}}}}
+		进入 “个人资料设置/设置/SSH密钥”，点击增加密钥，
+		会出现两个对话框，分别在‘密钥’和‘标题’栏中输入：
+			ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC98Eu4rfLWZ5G+NPcJf6TqEJ+EQ32PCiqNVYQyCuxDzmJqvYFcCq6cvH0IU/pTG5D3vPRBVd/HaBc95z1+Q6ulXZG15pbGzs+XFZe5fMCszyyxi42QbADfXUhz4m/NJ0+kKbtJ2EtaREDrDfDWovaklTTAx95WSFYwWTYIVKpfENojF5vik/d1AcS6IAK0xi6+zeHy3JSKLl2v2k3Y0BcDFLVRzLpG/ckx1qFGWzoOZeps+hDnXdBSauh9+t/+vXdiYqS4fnIJ1pz4aZ6ad/vpkm72/8P8PlDtlyTgzZX3Inq+wclGQURdPSmDwBKStEkTIxjgB+FuQRHBhPENsEF7 git@gitlab.51ucar.cn:it/agent.git
+			和
+			yangwankui@51ucar.cn
+		保存即可！
 		
-	然后就：撸啊撸代码ing........
+		
+	4.本地环境添加私钥：
+		
+			ssh-add ~/.ssh/id_rsa
+			
+			
+	5.远程测试：
+		
+		ssh -T git@gitlab.51ucar.cn
+		
+		如果显示以下内容，说明是配置成功了:
+			Hi xxx! You've successfully authenticated, but GitHub does not provide shell access
+			Connection to github.com closed.
+			
+
+	6.有必要的话，再次设置一下用户名和邮箱：
+
+			git config --global user.name "yangwankui"
+			git config --global user.email "yangwankui@51ucar.cn"
+			
+			
+	7.后面就可以clone一套代码下面
+			
+			git clone git@github.com:用户名/库.git
+			
+		{{{{{
+			当然，对于空项目也有另外一种方法来建立：
+
+				//创建本地新项目工作树
+				 mkdir new-project 
+				 cd new-project 
+				 git init 
+				 touch README 
+				 git add README     
+				 //（上传README 文件） 
+				 git commit -m 'first commit'	
+				 //定义远程服务器别名origin
+				  git remote add origin git@github.com:xxx/new-project.git     
+				 （origin 在这里就是git@github.com:xxx/new-project.git 的一个别名， 一个 url 链接）
+				 //本地和远程合并，本地默认分支为master
+				 git push origin master  （执行这一步可能会有报错）
+
+		}}}}}
+			
+		然后就：撸啊撸代码ing........
 		
 ---------------------------------------------------------------	
 		
