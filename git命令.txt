@@ -1,0 +1,286 @@
+---------------------
+一、配置工具：对所有本地仓库的用户信息进行配置
+
+//对你的commit操作设置关联的用户名
+
+ git config --global user.name "[name]"
+
+//对你的commit操作设置关联的邮箱地址
+
+ git config --global user.email "[email address]"
+
+---------------------
+二、创建仓库：创建一个新的仓库或者从一个现有的链接获取仓库
+
+//创建一个本地的仓库，并设置名字
+
+ git init [project-name]
+
+//下载一个项目以及它所有的版本历史
+
+$ git clone [url]
+
+---------------------
+三、重构文件：重定位并移除版本文件
+//从工作目录中删除文件并暂存此删除
+
+$ git rm [file]
+
+//从版本控制中移除文件，并在本地保存文件
+
+$ git rm --cached [file]
+
+//改变文件名并准备commit
+
+$ git mv [file-original] [file-renamed]
+
+---------------------
+四、列出文件：
+
+//列出所有项目中忽略的文件
+
+git ls-files --others --ignored --exclude-standard
+
+---------------------
+五、编辑和修改：暂存区 一些未完成的更改（主要是对本地仓库的保存和修改）
+（1）、//临时存储所有修改的已跟踪文件
+
+ git stash
+
+
+（2）、//重新存储所有最近被stash的文件
+
+ git stash pop
+
+（3）、//列出所有被stash的更改
+
+git stash list
+
+（4）、//放弃所有最近stash的更改
+
+ git stash drop
+
+---------------------
+六、单个文件更改：检查已有的编辑
+
+//列出所有新建或者更改的文件，这些文件需要被commit
+
+$ git status
+
+//展示那些没有暂存文件的差异
+
+$ git diff	// (查看修改后的本地工作区中的文件与暂存区比较后得差异)
+
+//查看存入暂存区，未提交到本地仓库区的修改
+
+git diff -cached
+
+//查看HEAD代表的是最近的一次commit的信息, HEAD^:是最近一次提交往前一次的提交记录
+
+git diff HEAD
+
+//将文件进行快照处理用于版本控制
+
+$ git add [file]
+
+//展示暂存文件与最新版本之间的不同
+
+$ git diff --staged
+
+
+//将文件移除暂存区，但是保留其内容
+
+$ git reset [file]
+
+将文件快照永久地记录在版本历史中
+
+$ git commit -m"[descriptive message]"
+
+---------------------
+七、批量更改：命名一系列commit以及合并已完成的工作
+//合并特定分支的历史到当前分支
+
+ git merge [branch-name]
+
+---------------------
+八、撤销commit：擦除错误并更改历史
+//撤销所有[commit]后的的commit，在本地保存更改
+
+$ git reset [commit]
+
+//放弃所有更改并回到某个特定的commit
+
+$ git reset --hard [commit]
+
+---------------------
+九、同步更改：注册一个远程的链接，交换仓库的版本历史
+
+//下载远程仓库的所有历史
+
+$ git fetch [remote]
+
+//合并远程分支到当前本地分支
+
+$ git merge [remote]/[branch]
+
+上传所有本地分支commit到GitHub上
+
+$ git push [remote] [branch]
+
+下载书签历史并合并更改
+
+$ git pull
+
+
+---------------------
+---------------------
+---------------------
+---------------------
+
+1.新建分支：
+git branch abc[分支名]
+
+---------------------
+2.切换到某分支：
+git checkout abc[分支名]
+
+2.1我们也可以使用 git checkout -b (branchname) 命令来创建新分支并立即切换到该分支下，从而在该分支中操作：
+git checkout -b abc[分支名]
+
+2.2 更高级的语法：在本地建立分支名的时候也在远程建立相同的分支（即建立映射关系）：
+git checkout -b abc origin/abc 
+
+也可以用这个命令，把本地分支名改掉，映射关系不变：
+git checkout -b branch_aaa origin/abc 	//本地分支名从abc改为branch_aaa
+
+---------------------
+
+3.查看本地分支：
+git branch 
+
+---------------------
+4.查看远端分支：
+git branch -r
+
+4.1 查看所有的分支：
+git branch -a
+
+4.2 使用命令 git remote show origin，可以查看remote地址，远程分支，还有本地分支与之相对应关系等信息：
+git remote show origin
+
+//此时我们可以看到那些远程仓库已经不存在的分支，根据提示，使用 git remote prune origin 命令：
+git remote prune origin
+
+4.3	重命名分支（本地分支）：
+git branch  -m 	<oldbranch> 	<newbranch>
+ 
+4.4	重命名分支（远端分支），推荐的做法是：
+1）、删除远程待修改分支
+2）、push本地新分支名到远程
+
+---------------------
+提交注释：
+git commit -m 'inital commit'
+
+---------------------
+5.删除分支：
+git branch -d abc[分支名]
+
+5.1 删除远端分支(这个命令后果很严重，不可逆，一定要慎重)：
+git push origin :abc		//删除远端分支：abc
+
+---------------------
+6.查看提交历史log：
+git log
+
+按q键退出
+
+6.1 查看日志简介版：
+git log --oneline
+
+6.2我们还可以用 –graph 选项，查看历史中什么时候出现了分支、合并。以下为相同的命令，开启了拓扑图选项:
+git log --oneline --graph
+
+6.3你也可以用 ‘–reverse’参数来逆向显示所有日志:
+git log --oneline --reverse
+
+6.4 查看指定用户提交的日志：
+git log --author='杨万奎 <yangwankui@51ucar.cn>'  --oneline -5
+//显示最近的5条数据
+
+6.5 按时间段查询日志：
+ git log --oneline --after={2018-09-20} --before={2018-09-30} --no-merges 
+或者：
+ git log --oneline --since={2018-09-01} --until={2018-09-30}
+（选项：--no-merges，隐藏合并提交的 ）
+
+6.6 按提交id号，用命令行查看档当次的提交记录：
+
+ git show '[SHA-1]'
+
+eg: git show 7cb384d45fae2baf15b630a3b2c7292ebd1d2215
+
+6.7 列出每次提交记录时，文件修改的个数情况：
+git log --stat  --no-merges	// (过滤掉合并的部分)
+
+6.8 查看某一个文件 的提交历史记录 列表：
+git log app/Http/Controllers/Agent/App/Main/WithdrawController.php (要写相对路径：相对与项目目录)
+
+//看想具体修改情况的话，就加上一个参数 -p :
+git log  -p app/Http/Controllers/Agent/App/Main/WithdrawController.php
+
+
+6.9 
+
+
+
+---------------------
+7.Git 标签 git tag：如果你达到一个重要的阶段，并希望永远记住那个特别的提交快照，你可以使用 git tag 给它打上标签。
+git tag -a  <tagname>  -m  "标签注释"
+ -m 也可以不写
+eg:	
+     （1）.添加标签：  git tag  -a  "v1.0"  -m "1.0版本，主要功能是代理商提现"
+     （2）.查看标签：  git  log  --oneline  --graph --decorate 
+
+
+7.1 查看所有标签：
+ git tag
+
+
+---------------------
+8.git远程仓库：
+//查看远程仓库映射关系： git remote -v
+
+8.1 添加远程仓库：
+git  remote  add origin git@github.com:youngyang86/hello-world.git
+
+8.2 删除远程仓库：
+git remote remove  origin
+
+
+
+---------------------
+9.（分支）查看本地, 并跟踪分支对应的远程分支（本地与远程分支的映射关系）
+git branch -vv
+
+9.1 设置本地分支与远程分支的映射关系：
+git branch	  --set-upstream-to   origin/my_branch  my_branch
+ 把本地的分支my_branch，与远程分支my_branch对应起来（语法：远程分支在前，本地分支在后）
+
+9.2 切换关联的远程分支：
+
+git remote remove origin  
+git branch --set-upstream-to origin/my_branch my_branch 
+
+先删除掉关联关系，然后重新设置关联关系
+
+9.3删除远端分支(这个命令后果很严重，不可逆，一定要慎重)：
+git push origin :abc		//删除远端分支：abc
+也可以这样：
+git push origin --delete abc
+
+---------------------
+9.3 
+
+
+---------------------
