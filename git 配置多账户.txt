@@ -1,0 +1,280 @@
+###########################################################################################################################################################################################################
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+		说明：
+
+			由于公司团队使用 GitLab 来托管代码，同时，个人在 Github 上还有一些代码仓库，
+			可公司邮箱与个人邮箱是不同的，由此产生的 SSH key 也是不同的，这就造成了冲突 ，
+			文章提供此类问题的解决方案：如何在一台机器上面同时使用 Github 与 Gitlab 的服务？
+			
+			
+		问题产生场景：
+			
+			无密码与远程服务器交互的秘密 - SSH
+				如果采用ssh 协议或者git 协议通过终端命令对远程仓库进行push操作的时候，大概的过程如下：（前提在 Github 上已经配置的本机的 SSH Public Key）
+
+					1.客户端发起一个 Public Key 的认证请求，并发送RSA Key的模数作为标识符。（关于 RSA Key 详细 维基百科）
+					2.服务端检查是否存在请求帐号的公钥（Linux中存储在~/.ssh/authorized_keys文件中），以及其拥有的访问权限。
+					3.服务端使用对应的公钥对一个随机的256位的字符串进行加密，并发送给客户端。
+					4.客户端使用私钥对字符串进行解密，并将其结合session id生成一个MD5值发送给服务端。 结合session id的目的是为了避免攻击者采用重放攻击（replay attack）。
+					5.服务端采用同样的方式生成MD5值与客户端返回的MD5值进行比较，完成对客户端的认证。
+					6.将push的内容进行加密与服务端传输数据。
+					
+					
+		具体场景：
+		
+			无论使用哪种代码托管服务商，对于 Git 而言，邮箱 是识别用户的唯一手段，
+			所以对于不同的服务商，由于邮箱不同，那么通过邮件名创建的 SSH Key 自然是不同的，
+			这时候在不同的服务商之间进行 push 命令的时候，Git 是不知道使用哪个 SSH Key ，自然导致 push 的失败。
+			场景如下：
+			
+				1.在公司团队使用搭建的 Gitlab 服务，提交邮箱yangwankui@51ucar.cn， 
+				2.个人 Github 服务，提交邮箱 1905133088@qq.com 
+				有两个Github账户，不同的账户提交不同的仓库内容。
+		
+		
+		
+		解决方案:
+		
+			方案一：同一个邮箱
+			
+				由于邮箱是识别的唯一手段，那么自然的，这两者采用同一个邮箱，生成的 public key 也会是同一个，
+				上传到 Github 或者 Gitlab 上面，在 Git 的配置中 ，
+				设置好 Global 的配置 ：git config --global user.name 'yangwankui' && git config --global user.email '1905133088@qq.com' 进行日常的开发是没有问题的。
+				
+				实际生活中采用同一个邮箱的可能性并不是太大，这就引出了方案二
+				
+				
+			方案二：基于config文件
+			
+				所谓的方案二，原理上就是对 SSH 协议配置 config 文件，对不同的域名采用不同的认证密钥。
+				
+				git config 介绍:
+				
+					Git有一个工具被称为git config，它允许你获得和设置配置变量；这些变量可以控制Git的外观和操作的各个方面。这些变量可以被存储在三个不同的位置：
+
+						1.		/etc/gitconfig 文件：包含了适用于系统所有用户和所有库的值。如果你传递参数选项’--system’ 给 git config，它将明确的读和写这个文件。
+						2.		~/.gitconfig 文件 ：具体到你的用户。你可以通过传递 ‘--global’ 选项使Git 读或写这个特定的文件。
+						3.		位于 Git 目录的 config 文件 (也就是 .git/config) ：无论你当前在用的库是什么，特定指向该单一的库。每个级别重写前一个级别的值。因此，在 .git/config 中的值覆盖了在/etc/gitconfig中的同一个值，可以通过传递‘--local’选项使Git 读或写这个特定的文件。
+						
+						由于采用了不同的邮箱，对不同的服务商进行提交，所以此时我们经常配置的 git config --global 就不能常用了，必须在每个仓库的目录下进行配置自己的用户名、邮箱。
+						（嫌麻烦？yangwankui 是这么解决的，由于个人的 Github 上有较多的仓库，而自己团队的代码基本上都是稳定的，有数的几个，
+						所以在 git config --global user.email '1905133088@qq.com' 中全局配置的是个人邮箱，在团队的项目中配置是本地local的）
+			
+
+############################################################################################################################################################################################################
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+同时使用两个账号分别操作Github和Gitlab
+
+	
+	一、两个账户分别为：
+	
+	（1）公司项目仓库：
+		git@gitlab.51ucar.cn:it/agent.git
+		
+		账号：yangwankui
+		邮箱：yangwankui@51ucar.cn
+		密码：ucar123456
+		
+	（2）个人仓库和账号：
+		git@github.com:youngyang86/hello-world.git
+		
+		账号：youngyang86
+		邮箱：1905133088@qq.com
+		密码：ucar123456
+	
+	
+	---------------------------------------------------------------	
+
+	
+	二、检查旧的环境配置：
+	(参照前面《git配置公钥私钥》把~/.ssh/下面的所有文件清空，去掉设置过的配置，user.name和user.email 设置为空)
+	
+		git config --global user.name
+	 
+		git config --global user.email
+	 
+	 //如果都没有返回值，就说明没有已配置的 git 账户，否则请删除账户信息，命令如下：
+	 
+		git config --global --unset user.name "yourname"
+	 
+		git config --global --unset user.email "youremail"
+	
+	
+	---------------------------------------------------------------	
+	
+	
+	三、生成公钥和秘钥，并配置到服务器上：
+		//必须要进入到这个目录下面： cd ~/.ssh
+	
+		（1）.生成公司项目仓库的公钥和私钥
+		生产单个ssh key，输入下面的命令：
+		
+		ssh-keygen -C "yangwankui@51ucar.cn"
+		
+		提示输入保存文件名，这里为了避免冲突，改写成：
+		
+		id_rsa_one
+		
+		然后一直三次直接回车，不输入密钥
+		
+		这样就生成了，公司项目仓库的公钥和私钥：id_rsa_one.pub 和 id_rsa_one
+		
+		把公钥丢到gitlab 服务器的ssh设置里面:
+		
+			cat ~/.ssh/id_rsa_one.pub
+			把里面的内容拷贝出来，贴到ssh设置里面去。
+		
+		在本地添加私钥：
+			
+			 ssh-add ~/.ssh/id_rsa_one
+		
+		有失败报错的话，参照这个网址：https://www.jianshu.com/p/a3b4f61d4747
+		
+		
+		
+		（2）然后用同样的方法,生成个人项目的公钥和私钥：命令记录如下
+		
+		ssh-keygen -C "1905133088@qq.com"
+		
+		id_rsa_two
+		
+		-> enter
+		-> enter
+		-> enter
+		
+		这样就生成了，个人仓库的公钥和私钥：id_rsa_two.pub 和 id_rsa_two
+		
+		把公钥丢到github 服务器的ssh设置里面：
+		
+			cat ~/.ssh/id_rsa_two.pub
+			
+			把里面的内容拷贝出来，贴到ssh设置里面去。
+		
+		在本地添加私钥：
+			
+			 ssh-add ~/.ssh/id_rsa_two
+		
+		有失败报错的话，参照这个网址：https://www.jianshu.com/p/a3b4f61d4747
+		
+		******************************************************************************************************
+			总结：其实这里有个命令可以更加简单地设置：
+				ssh-keygen -t rsa -C "yangwankui@51ucar.cn" -f "github_id_rsa"	//直接就指定了密钥的名称
+		******************************************************************************************************
+		
+		（3）.因为有两个邮箱，所有不可能公用一套全局设置，这里的解决方法是：新增一个配置config
+		
+		//创建配置文件
+		mkdir config	
+		
+		//编辑配置文件
+		vim config  
+		
+			在这个文件中写入如下配置：
+			
+		//gitlab	
+			
+			# one(one@gmail.com)						//这一行是注释，可以随便起个名字
+			Host gitlab.51ucar.cn						//Host的名字可以取为自己喜欢的名字，不过这个会影响git相关命令
+			HostName gitlab.51ucar.cn					//#这个是真实的域名地址，你可以从你的ssh clone地址里面分析出来
+			PreferredAuthentications publickey			//#配置登录时用什么权限认证--可设置publickey,password publickey,keyboard-interactive等
+			IdentityFile ~/.ssh/id_rsa_one				//私钥的名称
+			User yangwankui								//#配置使用用户名
+
+		//github
+		
+			# two(two@ gmail.com)
+			Host github.com
+			HostName github.com
+			PreferredAuthentications publickey
+			IdentityFile ~/.ssh/id_rsa_two
+			User youngyang86
+
+			
+			
+			
+			
+			
+			/***********************************************************/
+			config配置文件的参数注解：
+			
+			
+				1）.Host 						  #这个是别名，可以随便起名，但是会影响git的命令	
+				2）.HostName                      #这个是真实的域名地址
+				3）.IdentityFile                  #这里是id_rsa的地址
+				4）.PreferredAuthentications      #配置登录时用什么权限认证--可设置publickey,password publickey,keyboard-interactive等
+				5）.User                          #配置使用用户名
+
+				说明：
+					Host，每个账号单独配置一个Host，每个Host要取一个别名，每个Host主要配置HostName和IdentityFile两个属性即可
+					Host的名字可以取为自己喜欢的名字，不过这个会影响git相关命令
+					例如：
+						Host mygithub 这样定义的话，命令如下：
+					git clone git@mygithub:youngyang86/hello-world.git		（即git@后面紧跟的名字改为mygithub，之前是github）
+					就相当于你配置的HostName真正的域名，映射成了Host后面的配置的名字
+					
+					
+					PreferredAuthentications：认证方式，默认是publickey，即公钥认证
+					
+					user： 使用的用户名：这里结合注册的账号灵活处理
+					
+				注意：这个文件里面，不能使用“//”来表示注释的意思，一般都是用“#”号来注释
+				
+					还有每个参数项前面不能有空格，每一行都不能有空格 ！！！
+				
+			************************************************************/
+		
+		
+		
+	---------------------------------------------------------------------------------	
+	
+	
+	三、测试两个配置是否设置成功：
+	
+		（1）：测试gitlab
+		ssh -T git@gitlab.51ucar.cn		
+		
+		显示： Welcome to GitLab, 杨万奎!
+		
+		说明，公司gitlab仓库配置成功！
+		
+		
+		（2）：测试github
+		 ssh  -T git@github.com
+		
+		显示：Hi youngyang86! You've successfully authenticated, but GitHub does not provide shell access.
+		说明，个人github仓库配置成功！
+		
+	
+	---------------------------------------------------------------------------------	
+	
+	
+	四、 配置 Git 用户名、邮箱：
+	
+	
+		分别配置两个账号对应到global和local，且一般是常用的为global，所以我将个人邮箱（github账号）配置为global，公司邮箱（gitlab账号）配置为local。
+		
+		//创建全局账号（github）:
+		
+		git config —-global user.name "youngyang86" && git config —-global user.email "1905133088@qq.com"
+		
+		//—-local的本地账户的配置，只在用git init创建一个本地仓库时才有效：
+		
+		git config —-local user.name "yangwankui" && git config -—local user.email "yangwankui@51ucar.cn"
+		
+	
+	---------------------------------------------------------------------------------	
+	
+	
+	
+	
+	五、撸啊撸代码。。。。。。。。
+		
+		
+		
+		
+		
+	
+	
+---------------------------------------------------------------------------------------------------------------------------------------------------
